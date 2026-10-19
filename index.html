@@ -153,11 +153,11 @@
   }
   .opt.ok { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); font-weight: 700; }
   .opt.bad { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
-  input[type=text] {
+  input[type=text], input[type=email], input[type=password] {
     width: 100%; min-height: 60px; font: inherit; font-size: 24px; padding: 12px 16px;
     border: 2px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink);
   }
-  input[type=text]:focus { outline: 3px solid var(--sun); border-color: var(--sea); }
+  input[type=text]:focus, input[type=email]:focus, input[type=password]:focus { outline: 3px solid var(--sun); border-color: var(--sea); }
   .answer-area {
     min-height: 70px; border: 2px dashed var(--line); border-radius: 16px;
     padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px;
@@ -188,6 +188,13 @@
   .lesson-item.locked .n { background: var(--line); color: var(--muted); }
   .lesson-item .state { font-size: 16px; color: var(--muted); }
   .lesson-item.done .state { color: var(--ok); font-weight: 700; }
+
+  .sync { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin: 22px 0 8px; }
+  .sync h3 { margin: 0 0 6px; }
+  .sync input { margin: 8px 0; }
+  .sync-msg { margin: 8px 0 0; font-size: 17px; color: var(--muted); }
+  .sync-msg.ok { color: var(--ok); font-weight: 700; }
+  .sync-msg.bad { color: var(--bad); font-weight: 700; }
 
   nav {
     position: fixed; left: 0; right: 0; bottom: 0;
@@ -231,291 +238,18 @@
   </div>
 </nav>
 
+<script src="firebase-config.js"></script>
+<script src="lessons.js"></script>
 <script>
 (function () {
   'use strict';
 
-  /* =====================================================
-     CONTENIDO DE LAS LECCIONES
-     items:   [inglés, pronunciación, español]
-     dialogs: [{ title, lines: [[inglés, español], ...] }]
-     ===================================================== */
-  var LESSONS = [
-    {
-      title: 'Saludos y presentaciones',
-      intro: 'Tus primeras palabras: saludar, despedirte y decir cómo te llamas.',
-      items: [
-        ['Hello', 'jeló', 'Hola'],
-        ['Good morning', 'gud mórning', 'Buenos días'],
-        ['Good afternoon', 'gud afternún', 'Buenas tardes'],
-        ['Good night', 'gud náit', 'Buenas noches'],
-        ['Goodbye', 'gudbái', 'Adiós'],
-        ['My name is Fer.', 'mái néim is Fer', 'Me llamo Fer.'],
-        ['Nice to meet you.', 'náis tu mít iu', 'Encantado de conocerte.']
-      ],
-      tips: [
-        '<b>Consejo de pronunciación.</b> La <b>H</b> inglesa suena como una J suave, casi un soplido: <i>Hello</i> se dice “jeló”.',
-        '<b>Ojo con “Good night”.</b> Se usa para despedirse de noche o al irse a dormir, no para saludar.'
-      ],
-      dialogs: [
-        { title: 'Presentándote', lines: [
-          ['Good morning!', '¡Buenos días!'],
-          ['My name is Fer.', 'Me llamo Fer.'],
-          ['Nice to meet you.', 'Encantado de conocerte.']
-        ] }
-      ]
-    },
-    {
-      title: 'Números y la hora',
-      intro: 'Contar hasta cien y decir qué hora es.',
-      items: [
-        ['One', 'uan', 'Uno'],
-        ['Two', 'tu', 'Dos'],
-        ['Three', 'zrí', 'Tres'],
-        ['Four', 'for', 'Cuatro'],
-        ['Five', 'fáiv', 'Cinco'],
-        ['Six', 'siks', 'Seis'],
-        ['Seven', 'séven', 'Siete'],
-        ['Eight', 'éit', 'Ocho'],
-        ['Nine', 'náin', 'Nueve'],
-        ['Ten', 'ten', 'Diez'],
-        ['Twenty', 'tuénti', 'Veinte'],
-        ['One hundred', 'uan jóndred', 'Cien'],
-        ['What time is it?', 'juát táim is it', '¿Qué hora es?'],
-        ["It's three o'clock.", 'its zrí oclók', 'Son las tres en punto.'],
-        ["It's half past five.", 'its jaf past fáiv', 'Son las cinco y media.'],
-        ["It's a quarter past two.", 'its a cuórter past tu', 'Son las dos y cuarto.'],
-        ["It's a quarter to eight.", 'its a cuórter tu éit', 'Son las ocho menos cuarto.']
-      ],
-      tips: [
-        '<b>El sonido TH.</b> En <i>three</i> la lengua se asoma entre los dientes y se sopla suave: suena entre “z” y “f”. Ensáyalo despacio.',
-        '<b>Thirteen y thirty se parecen.</b> En <i>thirTEEN</i> (zertín) suena fuerte el final; en <i>THIRty</i> (zérti) suena fuerte el principio.',
-        '<b>La hora:</b> <i>o’clock</i> es en punto, <i>half past</i> es y media, <i>a quarter past</i> es y cuarto y <i>a quarter to</i> es menos cuarto.'
-      ],
-      dialogs: [
-        { title: 'Preguntando la hora', lines: [
-          ['What time is it?', '¿Qué hora es?'],
-          ["It's a quarter to eight.", 'Son las ocho menos cuarto.']
-        ] }
-      ]
-    },
-    {
-      title: 'Verbo to be (ser y estar)',
-      intro: 'En inglés un solo verbo hace de “ser” y de “estar”.',
-      items: [
-        ['I am', 'ai am', 'Yo soy / yo estoy'],
-        ['You are', 'iu ar', 'Tú eres / tú estás'],
-        ['He is', 'ji is', 'Él es / él está'],
-        ['She is', 'shi is', 'Ella es / ella está'],
-        ['It is', 'it is', 'Es / está (cosas y animales)'],
-        ['We are', 'ui ar', 'Nosotros somos / estamos'],
-        ['They are', 'déi ar', 'Ellos son / están'],
-        ["I'm fine.", 'aim fáin', 'Estoy bien.'],
-        ['How are you?', 'jáu ar iu', '¿Cómo estás?'],
-        ['Where are you from?', 'juér ar iu from', '¿De dónde eres?'],
-        ["I'm from Spain.", 'aim from spéin', 'Soy de España.'],
-        ['She is my friend.', 'shi is mái frend', 'Ella es mi amiga.'],
-        ["I'm not tired.", 'aim not táierd', 'No estoy cansado.'],
-        ['They are at home.', 'déi ar at jóum', 'Ellos están en casa.']
-      ],
-      tips: [
-        '<b>Un verbo para dos.</b> I am, you are, he/she/it is, we/they are. Según el contexto significa “ser” o “estar”.',
-        '<b>El pronombre es obligatorio.</b> En español dices “estoy bien”; en inglés siempre <i>I’m fine</i>.',
-        '<b>Contracciones.</b> Al hablar se acorta: I am → I’m, you are → you’re, he is → he’s.',
-        '<b>Para negar</b> se añade <i>not</i> detrás: I am not tired.',
-        '<b>SH.</b> En <i>she</i> suena como cuando pides silencio: “shhh”.'
-      ],
-      dialogs: [
-        { title: 'Un saludo con pregunta', lines: [
-          ['Hello! How are you?', '¡Hola! ¿Cómo estás?'],
-          ["I'm fine. And you?", 'Estoy bien. ¿Y tú?']
-        ] },
-        { title: 'Conociendo a alguien', lines: [
-          ['Where are you from?', '¿De dónde eres?'],
-          ["I'm from Spain.", 'Soy de España.']
-        ] }
-      ]
-    },
-    {
-      title: 'Frases útiles del día a día',
-      intro: 'Las frases de cortesía y de supervivencia que más vas a usar.',
-      items: [
-        ['Please', 'plíis', 'Por favor'],
-        ['Thank you', 'zank iu', 'Gracias'],
-        ["You're welcome.", 'iur uélcom', 'De nada.'],
-        ['Excuse me', 'ekskiús mi', 'Perdone / disculpe'],
-        ["I'm sorry.", 'aim sóri', 'Lo siento.'],
-        ["I don't understand.", 'ai dóunt anderstánd', 'No entiendo.'],
-        ['Can you repeat, please?', 'kan iu ripít plíis', '¿Puede repetir, por favor?'],
-        ['Speak slowly, please.', 'spík slóuli plíis', 'Hable despacio, por favor.'],
-        ['Do you speak Spanish?', 'du iu spík spánish', '¿Habla español?'],
-        ['I speak a little English.', 'ai spík a lítl ínglish', 'Hablo un poco de inglés.'],
-        ["I don't know.", 'ai dóunt nóu', 'No lo sé.'],
-        ['Help!', 'jelp', '¡Ayuda!']
-      ],
-      tips: [
-        '<b>Thank you</b> se oye en todas partes. Entre amigos se dice también <i>thanks</i>.',
-        '<b>Excuse me</b> sirve para llamar la atención o para pasar entre gente. <b>I’m sorry</b> es para pedir perdón o lamentar algo.',
-        '<b>Tus dos mejores aliadas:</b> “Can you repeat, please?” y “Speak slowly, please.”'
-      ],
-      dialogs: [
-        { title: 'Pidiendo que repitan', lines: [
-          ['Excuse me, can you repeat, please?', 'Perdone, ¿puede repetir, por favor?'],
-          ['Yes, of course.', 'Sí, claro.'],
-          ['Thank you!', '¡Gracias!'],
-          ["You're welcome.", 'De nada.']
-        ] }
-      ]
-    },
-    {
-      title: 'Verbos básicos y frases sencillas',
-      intro: 'Los verbos de cada día para hablar de ti y de lo que haces.',
-      items: [
-        ['I have a camera.', 'ai jav a kámera', 'Tengo una cámara.'],
-        ['I want a coffee.', 'ai uónt a cófi', 'Quiero un café.'],
-        ['I like photography.', 'ai láik fotógrafi', 'Me gusta la fotografía.'],
-        ['I need help.', 'ai níid jelp', 'Necesito ayuda.'],
-        ['I live in Spain.', 'ai liv in spéin', 'Vivo en España.'],
-        ['I eat fish.', 'ai ít fish', 'Como pescado.'],
-        ['I drink water.', 'ai drink uóter', 'Bebo agua.'],
-        ['I go to the beach.', 'ai góu tu de bích', 'Voy a la playa.'],
-        ['She likes tea.', 'shi láiks tí', 'A ella le gusta el té.'],
-        ['He wants water.', 'ji uónts uóter', 'Él quiere agua.'],
-        ['We go home.', 'ui góu jóum', 'Vamos a casa.'],
-        ['Do you like coffee?', 'du iu láik cófi', '¿Te gusta el café?']
-      ],
-      tips: [
-        '<b>He, she, it llevan -s.</b> I want → he wants; I like → she likes.',
-        '<b>Dos casos especiales:</b> have → he has, go → she goes.',
-        '<b>Preguntar</b> con <i>do</i> al principio: Do you like coffee?'
-      ],
-      dialogs: [
-        { title: 'En casa', lines: [
-          ['Do you like coffee?', '¿Te gusta el café?'],
-          ['Yes, I like coffee.', 'Sí, me gusta el café.'],
-          ['I want a coffee.', 'Quiero un café.']
-        ] }
-      ]
-    },
-    {
-      title: 'Preguntar y pedir',
-      intro: 'Tiendas, restaurantes y direcciones: cómo pedir con educación.',
-      items: [
-        ['How much is it?', 'jáu moch is it', '¿Cuánto cuesta?'],
-        ['Where is the bathroom?', 'juér is de báthrum', '¿Dónde está el baño?'],
-        ['I would like a coffee, please.', 'ai uud láik a cófi plíis', 'Quisiera un café, por favor.'],
-        ['The menu, please.', 'de ménu plíis', 'La carta, por favor.'],
-        ['The bill, please.', 'de bil plíis', 'La cuenta, por favor.'],
-        ['A table for two, please.', 'a téibol for tu plíis', 'Una mesa para dos, por favor.'],
-        ['Where is the station?', 'juér is de stéishon', '¿Dónde está la estación?'],
-        ['Turn left.', 'tern left', 'Gire a la izquierda.'],
-        ['Turn right.', 'tern ráit', 'Gire a la derecha.'],
-        ['Go straight.', 'góu stréit', 'Siga recto.'],
-        ['Is it far?', 'is it far', '¿Está lejos?'],
-        ['Can I pay by card?', 'kan ai péi bai card', '¿Puedo pagar con tarjeta?']
-      ],
-      tips: [
-        '<b>Would like</b> es más educado que <i>want</i>: “I would like…” equivale a “quisiera…”.',
-        '<b>Please</b> al final suaviza cualquier petición.',
-        '<b>The</b> se pronuncia “de” con la lengua entre los dientes, muy suave.',
-        '<b>Direcciones:</b> left es izquierda, right es derecha y straight es recto.'
-      ],
-      dialogs: [
-        { title: 'En la cafetería', lines: [
-          ['Good afternoon. What would you like?', 'Buenas tardes. ¿Qué desea?'],
-          ['I would like a coffee, please.', 'Quisiera un café, por favor.'],
-          ['Here you are.', 'Aquí tiene.'],
-          ['How much is it?', '¿Cuánto cuesta?']
-        ] },
-        { title: 'Preguntando el camino', lines: [
-          ['Excuse me, where is the station?', 'Perdone, ¿dónde está la estación?'],
-          ['Go straight and turn left.', 'Siga recto y gire a la izquierda.'],
-          ['Is it far?', '¿Está lejos?'],
-          ["No, it's five minutes.", 'No, está a cinco minutos.']
-        ] }
-      ]
-    },
-    {
-      title: 'Pasado y futuro',
-      intro: 'Contar lo que hiciste ayer y lo que harás mañana.',
-      items: [
-        ['Yesterday', 'iésterdei', 'Ayer'],
-        ['Today', 'tudéi', 'Hoy'],
-        ['Tomorrow', 'tumórou', 'Mañana'],
-        ['Last week', 'last uík', 'La semana pasada'],
-        ['Next week', 'nekst uík', 'La semana próxima'],
-        ['I was tired.', 'ai uos táierd', 'Estaba cansado.'],
-        ['I went to the beach.', 'ai uent tu de bích', 'Fui a la playa.'],
-        ['I ate fish.', 'ai éit fish', 'Comí pescado.'],
-        ['I took a photo.', 'ai tuk a fóutou', 'Hice una foto.'],
-        ['I worked yesterday.', 'ai uorkt iésterdei', 'Ayer trabajé.'],
-        ['I will go tomorrow.', 'ai uil góu tumórou', 'Iré mañana.'],
-        ["I'm going to travel.", 'aim góuing tu trável', 'Voy a viajar.'],
-        ['We will eat at home.', 'ui uil it at jóum', 'Comeremos en casa.']
-      ],
-      tips: [
-        '<b>Pasado regular:</b> se añade <i>-ed</i> al verbo: work → worked.',
-        '<b>Pasado irregular:</b> hay que aprenderlos. go → went, eat → ate, take → took, am/is → was.',
-        '<b>Futuro:</b> <i>will</i> + verbo (I will go) o <i>going to</i> + verbo (I’m going to travel).'
-      ],
-      dialogs: [
-        { title: 'Hablando de ayer', lines: [
-          ['What did you do yesterday?', '¿Qué hiciste ayer?'],
-          ['I went to the beach. I took a photo.', 'Fui a la playa. Hice una foto.'],
-          ['Nice!', '¡Qué bien!']
-        ] }
-      ]
-    },
-    {
-      title: 'Conversaciones completas',
-      intro: 'Todo junto: tres conversaciones reales de principio a fin.',
-      items: [
-        ['Good afternoon. What would you like?', 'gud afternún. juát uud iu láik', 'Buenas tardes. ¿Qué desea?'],
-        ['A coffee with milk, please.', 'a cófi uíz milk plíis', 'Un café con leche, por favor.'],
-        ['Here you are.', 'jíer iu ar', 'Aquí tiene.'],
-        ["That's three euros.", 'dats zrí iúrous', 'Son tres euros.'],
-        ['Excuse me, where is the station?', 'ekskiús mi juér is de stéishon', 'Perdone, ¿dónde está la estación?'],
-        ['Go straight and turn left.', 'góu stréit and tern left', 'Siga recto y gire a la izquierda.'],
-        ["It's five minutes.", 'its fáiv mínits', 'Está a cinco minutos.'],
-        ['Hello! How are you?', 'jeló jáu ar iu', '¡Hola! ¿Cómo estás?'],
-        ["I'm fine, thank you. And you?", 'aim fáin zank iu. and iu', 'Estoy bien, gracias. ¿Y tú?'],
-        ['Do you speak English?', 'du iu spík ínglish', '¿Habla inglés?'],
-        ["A little. I'm learning.", 'a lítl. aim lérning', 'Un poco. Estoy aprendiendo.'],
-        ['Have a nice day!', 'jav a náis dei', '¡Que tenga un buen día!'],
-        ['See you tomorrow!', 'si iu tumórou', '¡Hasta mañana!']
-      ],
-      tips: [
-        '<b>Ya puedes mantener una conversación.</b> Estas frases mezclan todo lo aprendido en las lecciones anteriores.',
-        '<b>Practica en voz alta.</b> Escucha cada frase con 🔊 y repítela hasta que te salga sin mirar.'
-      ],
-      dialogs: [
-        { title: 'En la cafetería', lines: [
-          ['Good afternoon. What would you like?', 'Buenas tardes. ¿Qué desea?'],
-          ['A coffee with milk, please.', 'Un café con leche, por favor.'],
-          ['Here you are.', 'Aquí tiene.'],
-          ["That's three euros.", 'Son tres euros.'],
-          ['Thank you. Have a nice day!', 'Gracias. ¡Que tenga un buen día!']
-        ] },
-        { title: 'Preguntando el camino', lines: [
-          ['Excuse me, where is the station?', 'Perdone, ¿dónde está la estación?'],
-          ['Go straight and turn left.', 'Siga recto y gire a la izquierda.'],
-          ['Is it far?', '¿Está lejos?'],
-          ["No, it's five minutes.", 'No, está a cinco minutos.']
-        ] },
-        { title: 'Conociendo a alguien', lines: [
-          ['Hello! How are you?', '¡Hola! ¿Cómo estás?'],
-          ["I'm fine, thank you. And you?", 'Estoy bien, gracias. ¿Y tú?'],
-          ['Do you speak English?', '¿Habla inglés?'],
-          ["A little. I'm learning.", 'Un poco. Estoy aprendiendo.'],
-          ['See you tomorrow!', '¡Hasta mañana!']
-        ] }
-      ]
-    }
-  ];
+  var APP = window.APP;
+  var LESSONS = APP.LESSONS;
 
   var PASS = 0.8;
   var NQ = 10;
-  var KEY = 'mi-ingles-v2';
+  var KEY = APP.id + '-v1';
 
   /* ---------- Utilidades ---------- */
   function $(id) { return document.getElementById(id); }
@@ -540,14 +274,15 @@
   ];
   function norm(s) {
     s = String(s).toLowerCase().replace(/[’‘]/g, "'");
-    CONTR.forEach(function (c) { s = s.replace(c[0], c[1]); });
+    if (APP.contractions) CONTR.forEach(function (c) { s = s.replace(c[0], c[1]); });
+    s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return s.replace(/[.,!?¡¿;:']/g, '').replace(/\s+/g, ' ').trim();
   }
   function words(s) { return s.replace(/[.,!?]/g, '').split(' ').filter(Boolean); }
   function items(L) { return L.items.map(function (a) { return { en: a[0], pron: a[1], es: a[2] }; }); }
 
   /* ---------- Progreso (se guarda en el móvil) ---------- */
-  var state = { cur: 0, best: {}, passed: {}, known: {} };
+  var state = { cur: 0, best: {}, passed: {}, known: {}, epoch: 0, updatedAt: 0 };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -555,15 +290,15 @@
       state.best = saved.best || {};
       state.passed = saved.passed || {};
       state.known = saved.known || {};
-    } else {
-      var old = JSON.parse(localStorage.getItem('mi-ingles-v1') || 'null');
-      if (old) {
-        if (old.passed) { state.passed[0] = true; state.best[0] = old.best || 0; }
-        state.known = old.known || {};
-      }
+      state.epoch = saved.epoch || 0;
+      state.updatedAt = saved.updatedAt || 0;
     }
   } catch (e) {}
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function save(skipCloud) {
+    if (!skipCloud) state.updatedAt = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    if (!skipCloud) cloudPush();
+  }
   function unlocked(i) { return i === 0 || !!state.passed[i - 1]; }
   if (!unlocked(state.cur)) state.cur = 0;
   function L() { return LESSONS[state.cur]; }
@@ -573,15 +308,17 @@
   function loadVoice() {
     if (!('speechSynthesis' in window)) return;
     var vs = speechSynthesis.getVoices();
-    voice = vs.filter(function (v) { return /^en[-_](US|GB)/i.test(v.lang); })[0] ||
-            vs.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+    var want = APP.speechLang.toLowerCase();
+    function lg(v) { return (v.lang || '').toLowerCase().replace('_', '-'); }
+    voice = vs.filter(function (v) { return lg(v) === want; })[0] ||
+            vs.filter(function (v) { return lg(v).indexOf(APP.voicePrefix) === 0; })[0] || null;
   }
   if ('speechSynthesis' in window) { loadVoice(); speechSynthesis.onvoiceschanged = loadVoice; }
   function speak(text, slow) {
-    if (!('speechSynthesis' in window)) { alert('Este móvil no tiene voz en inglés disponible.'); return; }
+    if (!('speechSynthesis' in window)) { alert('Este móvil no tiene voz en ' + APP.langName + ' disponible.'); return; }
     speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
-    u.lang = voice ? voice.lang : 'en-US';
+    u.lang = voice ? voice.lang : APP.speechLang;
     if (voice) u.voice = voice;
     u.rate = slow ? 0.6 : 0.85;
     speechSynthesis.speak(u);
@@ -589,9 +326,10 @@
 
   /* ---------- Navegación ---------- */
   var tabs = ['aprender', 'tarjetas', 'practica', 'plan'];
-  var quiz = null, cardIdx = 0, flipped = false;
+  var quiz = null, cardIdx = 0, flipped = false, curTab = 'aprender';
 
   function show(tab) {
+    curTab = tab;
     tabs.forEach(function (t) { $('v-' + t).hidden = (t !== tab); });
     document.querySelectorAll('nav button').forEach(function (b) {
       if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
@@ -691,7 +429,7 @@
                options: shuffle([p.es].concat(pick(ess, 3, p.es))), answer: p.es, show: p.en + ' = ' + p.es };
     }
     function qChooseEn(p) {
-      return { type: 'choose', prompt: '¿Cómo dices “' + p.es.replace(/\.$/, '') + '” en inglés?', say: null,
+      return { type: 'choose', prompt: '¿Cómo dices “' + p.es.replace(/\.$/, '') + '” en ' + APP.langName + '?', say: null,
                options: shuffle([p.en].concat(pick(ens, 3, p.en))), answer: p.en, show: p.en };
     }
     function qListen(p) {
@@ -699,7 +437,7 @@
                options: shuffle([p.es].concat(pick(ess, 3, p.es))), answer: p.es, show: p.en + ' = ' + p.es };
     }
     function qType(p) {
-      return { type: 'type', prompt: 'Escribe en inglés: “' + p.es.replace(/\.$/, '') + '”', answer: p.en, show: p.en };
+      return { type: 'type', prompt: 'Escribe en ' + APP.langName + ': “' + p.es.replace(/\.$/, '') + '”', answer: p.en, show: p.en };
     }
     function qOrder(p) {
       var w = words(p.en);
@@ -790,7 +528,7 @@
     var last = quiz.lesson === LESSONS.length - 1;
     var h = '<h2>Resultado</h2><div class="score">' + quiz.score + ' / ' + total + '</div>';
     if (ok && last) {
-      h += '<div class="feedback ok"><b>¡Has completado el curso!</b> Ya puedes saludar, pedir, preguntar y mantener una conversación sencilla en inglés. Enhorabuena.</div>';
+      h += '<div class="feedback ok"><b>¡Has completado el curso!</b> Ya puedes saludar, pedir, preguntar y mantener una conversación sencilla en ' + APP.langName + '. Enhorabuena.</div>';
     } else if (ok) {
       h += '<div class="feedback ok"><b>¡Lección ' + (quiz.lesson + 1) + ' dominada!</b> Se ha abierto la lección ' + (quiz.lesson + 2) + ': ' + esc(LESSONS[quiz.lesson + 1].title) + '.</div>';
       h += '<button class="btn" id="next-lesson">Ir a la lección ' + (quiz.lesson + 2) + '</button>';
@@ -814,6 +552,7 @@
            '<span class="n">' + (done ? '✓' : (open ? (i + 1) : '🔒')) + '</span>' +
            '<span><span style="display:block"><b>' + (i + 1) + '. ' + esc(lesson.title) + '</b></span><span class="state">' + st + '</span></span></button>';
     });
+    h += syncCard();
     h += '<button class="btn ghost" id="reset" style="margin-top:28px">Borrar mi progreso</button>';
     $('v-plan').innerHTML = h;
   }
@@ -828,7 +567,7 @@
     if (les) { setLesson(+les.dataset.lesson); show('aprender'); return; }
     if (t.closest('#reset')) {
       if (confirm('¿Seguro que quieres borrar todo tu progreso?')) {
-        state = { cur: 0, best: {}, passed: {}, known: {} }; quiz = null; cardIdx = 0; flipped = false;
+        state = { cur: 0, best: {}, passed: {}, known: {}, epoch: (state.epoch || 0) + 1, updatedAt: 0 }; quiz = null; cardIdx = 0; flipped = false;
         save(); updateChip(); renderPlan();
       }
       return;
@@ -890,9 +629,185 @@
     }
   });
 
+  /* ---------- Sincronización con Firebase (opcional) ---------- */
+  var FB_VER = '10.14.1';
+  var fbCfg = window.FIREBASE_CONFIG;
+  var cloud = {
+    cfg: (fbCfg && fbCfg.apiKey && fbCfg.projectId && String(fbCfg.apiKey).indexOf('PEGA') !== 0) ? fbCfg : null,
+    mods: null, auth: null, db: null, user: null, msg: '', timer: null, initDone: false, loading: null
+  };
+
+  function setMsg(m, kind) {
+    cloud.msg = m;
+    var el = $('s-msg');
+    if (el) { el.textContent = m; el.className = 'sync-msg' + (kind ? ' ' + kind : ''); }
+  }
+
+  function fbError(e) {
+    var c = (e && e.code) || '';
+    var map = {
+      'auth/invalid-credential': 'El correo o la contraseña no son correctos.',
+      'auth/wrong-password': 'La contraseña no es correcta.',
+      'auth/user-not-found': 'No hay ninguna cuenta con ese correo. Pulsa “Crear cuenta nueva”.',
+      'auth/email-already-in-use': 'Ese correo ya tiene una cuenta. Pulsa “Entrar”.',
+      'auth/weak-password': 'La contraseña es demasiado corta (mínimo 6 caracteres).',
+      'auth/invalid-email': 'El correo no parece válido.',
+      'auth/missing-password': 'Escribe tu contraseña.',
+      'auth/network-request-failed': 'Sin conexión. Inténtalo cuando tengas internet.',
+      'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
+      'auth/operation-not-allowed': 'Falta activar el acceso con correo y contraseña en Firebase (mira LEEME.md).',
+      'permission-denied': 'Firebase no deja guardar: revisa las reglas de Firestore (mira LEEME.md).',
+      'unavailable': 'Sin conexión. Tu progreso está a salvo en este móvil y se sincronizará más tarde.'
+    };
+    return map[c] || 'No se pudo sincronizar (' + (c || 'error') + ').';
+  }
+
+  function loadFirebase() {
+    if (cloud.mods) return Promise.resolve(cloud.mods);
+    if (cloud.loading) return cloud.loading;
+    var base = 'https://www.gstatic.com/firebasejs/' + FB_VER + '/';
+    cloud.loading = Promise.all([
+      import(base + 'firebase-app.js'),
+      import(base + 'firebase-auth.js'),
+      import(base + 'firebase-firestore.js')
+    ]).then(function (m) {
+      var app = m[0].initializeApp(cloud.cfg);
+      cloud.auth = m[1].getAuth(app);
+      cloud.db = m[2].getFirestore(app);
+      cloud.mods = { app: m[0], auth: m[1], fs: m[2] };
+      return cloud.mods;
+    }).catch(function (e) { cloud.loading = null; throw e; });
+    return cloud.loading;
+  }
+
+  function docRef() { return cloud.mods.fs.doc(cloud.db, 'users', cloud.user.uid, 'apps', APP.id); }
+
+  function normRemote(d) {
+    var k = {};
+    (Array.isArray(d.known) ? d.known : []).forEach(function (x) { k[x] = true; });
+    return { cur: d.cur || 0, best: d.best || {}, passed: d.passed || {}, known: k, epoch: d.epoch || 0, updatedAt: d.updatedAt || 0 };
+  }
+
+  function mergeStates(a, b) {
+    var ea = a.epoch || 0, eb = b.epoch || 0;
+    if (ea !== eb) return ea > eb ? a : b;                 // un borrado más reciente gana
+    var newer = (a.updatedAt || 0) >= (b.updatedAt || 0) ? a : b;
+    var out = { cur: newer.cur || 0, best: {}, passed: {}, known: Object.assign({}, newer.known || {}),
+                epoch: ea, updatedAt: Math.max(a.updatedAt || 0, b.updatedAt || 0) };
+    [a, b].forEach(function (s) {
+      Object.keys(s.passed || {}).forEach(function (k) { if (s.passed[k]) out.passed[k] = true; });
+      Object.keys(s.best || {}).forEach(function (k) { out.best[k] = Math.max(out.best[k] || 0, s.best[k] || 0); });
+    });
+    return out;
+  }
+
+  function applyState(m) {
+    state.cur = m.cur || 0; state.best = m.best || {}; state.passed = m.passed || {};
+    state.known = m.known || {}; state.epoch = m.epoch || 0; state.updatedAt = m.updatedAt || 0;
+    if (!unlocked(state.cur)) state.cur = 0;
+    save(true);
+    updateChip();
+    if (curTab === 'plan') renderPlan(); else if (curTab === 'aprender') renderLesson();
+  }
+
+  function push() {
+    if (!cloud.user || !cloud.mods) return Promise.resolve();
+    var data = { cur: state.cur, best: state.best, passed: state.passed, known: Object.keys(state.known),
+                 epoch: state.epoch || 0, updatedAt: state.updatedAt || Date.now() };
+    return cloud.mods.fs.setDoc(docRef(), data);
+  }
+
+  function pull() {
+    if (!cloud.user || !cloud.mods) return Promise.resolve();
+    setMsg('Sincronizando…');
+    return cloud.mods.fs.getDoc(docRef()).then(function (snap) {
+      if (snap.exists()) applyState(mergeStates(state, normRemote(snap.data())));
+      return push();
+    }).then(function () { setMsg('Sincronizado ✓', 'ok'); })
+      .catch(function (e) { setMsg(fbError(e), 'bad'); });
+  }
+
+  function cloudPush() {
+    if (!cloud.user || !cloud.mods) return;
+    clearTimeout(cloud.timer);
+    cloud.timer = setTimeout(function () {
+      push().then(function () { setMsg('Sincronizado ✓', 'ok'); })
+            .catch(function (e) { setMsg(fbError(e), 'bad'); });
+    }, 1500);
+  }
+
+  function initCloud() {
+    if (!cloud.cfg || cloud.initDone) return;
+    loadFirebase().then(function (mods) {
+      cloud.initDone = true;
+      mods.auth.onAuthStateChanged(cloud.auth, function (u) {
+        cloud.user = u || null;
+        if (u) pull(); else setMsg('');
+        if (curTab === 'plan') renderPlan();
+      });
+    }).catch(function () {
+      setMsg('Sin conexión: tu progreso se guarda en este móvil y se sincronizará cuando haya internet.');
+    });
+  }
+
+  function syncCard() {
+    var h = '<div class="sync"><h3>Sincronizar en la nube (opcional)</h3>';
+    if (!cloud.cfg) {
+      h += '<p class="muted">Aún no está activada. Tu progreso se guarda solo en este móvil. Para activarla sigue los pasos del archivo LEEME.md.</p>';
+    } else if (cloud.user) {
+      h += '<p>Sesión iniciada con <b>' + esc(cloud.user.email || '') + '</b>.</p>' +
+           '<button class="btn" id="s-now">Sincronizar ahora</button>' +
+           '<button class="btn ghost" id="s-logout">Cerrar sesión</button>';
+    } else {
+      h += '<p class="muted">Entra con tu correo para guardar tu progreso y usarlo en otros móviles.</p>' +
+           '<input type="email" id="s-email" placeholder="Correo electrónico" autocomplete="email" autocapitalize="none" spellcheck="false">' +
+           '<input type="password" id="s-pass" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="current-password">' +
+           '<button class="btn" id="s-login">Entrar</button>' +
+           '<button class="btn ghost" id="s-signup">Crear cuenta nueva</button>' +
+           '<button class="btn ghost" id="s-forgot">Olvidé mi contraseña</button>';
+    }
+    return h + '<p class="sync-msg" id="s-msg">' + esc(cloud.msg || '') + '</p></div>';
+  }
+
+  function doAuth(kind) {
+    var email = ($('s-email').value || '').trim(), pass = $('s-pass').value || '';
+    if (!email || !pass) { setMsg('Escribe tu correo y tu contraseña.', 'bad'); return; }
+    setMsg('Un momento…');
+    loadFirebase().then(function (m) {
+      return kind === 'signup'
+        ? m.auth.createUserWithEmailAndPassword(cloud.auth, email, pass)
+        : m.auth.signInWithEmailAndPassword(cloud.auth, email, pass);
+    }).catch(function (e) { setMsg(fbError(e), 'bad'); });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest('#s-login')) { doAuth('login'); return; }
+    if (t.closest('#s-signup')) { doAuth('signup'); return; }
+    if (t.closest('#s-now')) { pull(); return; }
+    if (t.closest('#s-logout')) {
+      cloud.mods.auth.signOut(cloud.auth).then(function () { setMsg('Sesión cerrada.'); });
+      return;
+    }
+    if (t.closest('#s-forgot')) {
+      var email = ($('s-email').value || '').trim();
+      if (!email) { setMsg('Escribe tu correo y vuelve a pulsar este botón.', 'bad'); return; }
+      loadFirebase().then(function (m) { return m.auth.sendPasswordResetEmail(cloud.auth, email); })
+        .then(function () { setMsg('Te hemos enviado un correo para cambiar la contraseña.', 'ok'); })
+        .catch(function (err) { setMsg(fbError(err), 'bad'); });
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 's-pass') { doAuth('login'); }
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && cloud.user) pull(); });
+  window.addEventListener('online', initCloud);
+
   /* ---------- Inicio ---------- */
   renderLesson();
   updateChip();
+  initCloud();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
