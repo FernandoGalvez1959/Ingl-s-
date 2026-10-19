@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B5D66">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Inglés Básico A1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Inglés Básico A1</title>
+<style>
+  :root {
+    --bg: #F2F6F8;
+    --surface: #FFFFFF;
+    --ink: #10222B;
+    --muted: #4A5E68;
+    --line: #CFDBE1;
+    --sea: #0B5D66;
+    --sea-ink: #FFFFFF;
+    --sun: #FBD56B;
+    --sun-ink: #3A2B00;
+    --ok: #17794A;
+    --ok-bg: #DDF3E6;
+    --bad: #A3262B;
+    --bad-bg: #FBE3E2;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0D1A20;
+      --surface: #16282F;
+      --ink: #EAF2F5;
+      --muted: #A5B8C0;
+      --line: #2C434D;
+      --sea: #5CC5CF;
+      --sea-ink: #04242A;
+      --sun: #F4C94F;
+      --sun-ink: #2B1F00;
+      --ok: #7FE0AB;
+      --ok-bg: #12382A;
+      --bad: #FF9C9C;
+      --bad-bg: #3F1D1F;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--sans);
+    font-size: 19px;
+    line-height: 1.5;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    min-height: 100vh;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 8px;
+    max-width: 640px; margin: 0 auto;
+  }
+  header h1 { font-family: var(--serif); font-size: 22px; margin: 0; letter-spacing: .2px; }
+  .chip {
+    background: var(--sun); color: var(--sun-ink);
+    border-radius: 999px; padding: 6px 14px; font-size: 16px; font-weight: 700;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 8px 20px 24px; }
+  section[hidden] { display: none; }
+  h2 { font-family: var(--serif); font-size: 28px; line-height: 1.2; margin: 12px 0 8px; }
+  h3 { font-size: 20px; margin: 22px 0 8px; }
+  p { margin: 8px 0; }
+  .muted { color: var(--muted); }
+
+  .hero {
+    background: var(--sea); color: var(--sea-ink);
+    border-radius: 22px; padding: 26px 22px; margin: 12px 0 18px;
+    text-align: left; width: 100%; border: 0; cursor: pointer; font: inherit;
+  }
+  .hero .en { font-family: var(--serif); font-size: 54px; line-height: 1.05; font-weight: 700; display: block; }
+  .hero.long .en { font-size: 34px; line-height: 1.15; }
+  .hero .pron { display: inline-block; margin-top: 10px; background: var(--sun); color: var(--sun-ink); padding: 4px 12px; border-radius: 10px; font-weight: 700; font-size: 22px; }
+  .hero .es { display: block; margin-top: 10px; font-size: 21px; opacity: .95; }
+  .hero .hint { display: block; margin-top: 12px; font-size: 16px; opacity: .85; }
+
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px 16px; margin: 10px 0;
+  }
+  .row .txt { flex: 1; min-width: 0; }
+  .row .en { font-family: var(--serif); font-size: 25px; font-weight: 700; line-height: 1.15; }
+  .row .pron { color: var(--sea); font-weight: 700; font-size: 18px; }
+  .row .es { color: var(--muted); font-size: 18px; }
+
+  button { font: inherit; cursor: pointer; }
+  .icon-btn {
+    width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--sea);
+    background: transparent; color: var(--sea); font-size: 25px; flex: none;
+    display: grid; place-items: center; padding: 0;
+  }
+  .icon-btn:active { background: var(--sea); color: var(--sea-ink); }
+  .btn {
+    display: block; width: 100%; min-height: 58px; padding: 14px 18px;
+    border-radius: 16px; border: 2px solid var(--sea);
+    background: var(--sea); color: var(--sea-ink); font-weight: 700; font-size: 20px;
+    margin: 12px 0;
+  }
+  .btn.ghost { background: transparent; color: var(--sea); }
+  .btn[disabled] { opacity: .45; cursor: default; }
+
+  .tip {
+    background: var(--surface); border-left: 6px solid var(--sun);
+    border-radius: 12px; padding: 14px 16px; margin: 14px 0;
+  }
+  .tip b { font-family: var(--serif); }
+
+  .dialog { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px 16px 4px; margin: 12px 0; }
+  .dialog h4 { margin: 8px 0 4px; font-size: 18px; color: var(--muted); font-weight: 600; }
+  .dline { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .dline:first-of-type { border-top: 0; }
+  .dline .who {
+    width: 30px; height: 30px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-weight: 700; font-size: 15px; background: var(--sun); color: var(--sun-ink);
+  }
+  .dline .who.b { background: var(--sea); color: var(--sea-ink); }
+  .dline .txt { flex: 1; min-width: 0; }
+  .dline .en { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
+  .dline .es { color: var(--muted); font-size: 16px; }
+  .dline .icon-btn { width: 44px; height: 44px; font-size: 20px; }
+
+  .card {
+    width: 100%; min-height: 280px; border-radius: 24px; border: 2px solid var(--sea);
+    background: var(--surface); color: var(--ink);
+    padding: 26px 22px; text-align: center; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px; margin: 12px 0;
+  }
+  .card .big { font-family: var(--serif); font-size: 38px; font-weight: 700; line-height: 1.15; }
+  .card .big.long { font-size: 28px; }
+  .card .pron { background: var(--sun); color: var(--sun-ink); padding: 4px 14px; border-radius: 10px; font-weight: 700; font-size: 22px; }
+  .card .small { color: var(--muted); font-size: 17px; }
+  .counter { text-align: center; color: var(--muted); font-size: 17px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .bar { height: 12px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 10px 0 16px; }
+  .bar > i { display: block; height: 100%; background: var(--sea); transition: width .25s; }
+  .q { font-family: var(--serif); font-size: 27px; line-height: 1.25; margin: 6px 0 14px; }
+  .opt {
+    display: block; width: 100%; text-align: left; min-height: 60px;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--line);
+    border-radius: 16px; padding: 14px 18px; margin: 10px 0; font-size: 21px;
+  }
+  .opt.ok { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); font-weight: 700; }
+  .opt.bad { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  input[type=text] {
+    width: 100%; min-height: 60px; font: inherit; font-size: 24px; padding: 12px 16px;
+    border: 2px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink);
+  }
+  input[type=text]:focus { outline: 3px solid var(--sun); border-color: var(--sea); }
+  .answer-area {
+    min-height: 70px; border: 2px dashed var(--line); border-radius: 16px;
+    padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px;
+  }
+  .tile {
+    background: var(--surface); color: var(--ink); border: 2px solid var(--sea);
+    border-radius: 12px; padding: 10px 16px; font-size: 22px; font-family: var(--serif); font-weight: 700;
+  }
+  .tile.used { opacity: .25; pointer-events: none; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .feedback { border-radius: 16px; padding: 14px 16px; margin: 12px 0; font-size: 20px; }
+  .feedback.ok { background: var(--ok-bg); color: var(--ok); }
+  .feedback.bad { background: var(--bad-bg); color: var(--bad); }
+  .feedback b { font-family: var(--serif); font-size: 22px; }
+  .score { font-family: var(--serif); font-size: 64px; font-weight: 700; text-align: center; margin: 10px 0 0; }
+
+  .lesson-item {
+    display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px 16px; margin: 10px 0;
+  }
+  .lesson-item .n {
+    width: 42px; height: 42px; flex: none; border-radius: 50%; display: grid; place-items: center;
+    background: var(--sea); color: var(--sea-ink); font-weight: 700;
+  }
+  .lesson-item.current { border: 2px solid var(--sea); }
+  .lesson-item.locked { opacity: .6; cursor: default; }
+  .lesson-item.locked .n { background: var(--line); color: var(--muted); }
+  .lesson-item .state { font-size: 16px; color: var(--muted); }
+  .lesson-item.done .state { color: var(--ok); font-weight: 700; }
+
+  nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex; justify-content: center; z-index: 5;
+  }
+  nav .inner { display: flex; width: 100%; max-width: 640px; }
+  nav button {
+    flex: 1; border: 0; background: transparent; color: var(--muted);
+    padding: 10px 4px; min-height: 68px; font-size: 15px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  nav button .ic { font-size: 24px; line-height: 1; }
+  nav button[aria-current=page] { color: var(--sea); }
+  nav button[aria-current=page] .ic { transform: scale(1.1); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Inglés Básico A1</h1>
+  <span class="chip" id="chip">Lección 1</span>
+</header>
+
+<main>
+  <section id="v-aprender"></section>
+  <section id="v-tarjetas" hidden></section>
+  <section id="v-practica" hidden></section>
+  <section id="v-plan" hidden></section>
+</main>
+
+<nav aria-label="Secciones">
+  <div class="inner">
+    <button data-tab="aprender" aria-current="page"><span class="ic">📖</span>Lección</button>
+    <button data-tab="tarjetas"><span class="ic">🗂️</span>Tarjetas</button>
+    <button data-tab="practica"><span class="ic">✏️</span>Práctica</button>
+    <button data-tab="plan"><span class="ic">🧭</span>Plan</button>
+  </div>
+</nav>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================
+     CONTENIDO DE LAS LECCIONES
+     items:   [inglés, pronunciación, español]
+     dialogs: [{ title, lines: [[inglés, español], ...] }]
+     ===================================================== */
+  var LESSONS = [
+    {
+      title: 'Saludos y presentaciones',
+      intro: 'Tus primeras palabras: saludar, despedirte y decir cómo te llamas.',
+      items: [
+        ['Hello', 'jeló', 'Hola'],
+        ['Good morning', 'gud mórning', 'Buenos días'],
+        ['Good afternoon', 'gud afternún', 'Buenas tardes'],
+        ['Good night', 'gud náit', 'Buenas noches'],
+        ['Goodbye', 'gudbái', 'Adiós'],
+        ['My name is Fer.', 'mái néim is Fer', 'Me llamo Fer.'],
+        ['Nice to meet you.', 'náis tu mít iu', 'Encantado de conocerte.']
+      ],
+      tips: [
+        '<b>Consejo de pronunciación.</b> La <b>H</b> inglesa suena como una J suave, casi un soplido: <i>Hello</i> se dice “jeló”.',
+        '<b>Ojo con “Good night”.</b> Se usa para despedirse de noche o al irse a dormir, no para saludar.'
+      ],
+      dialogs: [
+        { title: 'Presentándote', lines: [
+          ['Good morning!', '¡Buenos días!'],
+          ['My name is Fer.', 'Me llamo Fer.'],
+          ['Nice to meet you.', 'Encantado de conocerte.']
+        ] }
+      ]
+    },
+    {
+      title: 'Números y la hora',
+      intro: 'Contar hasta cien y decir qué hora es.',
+      items: [
+        ['One', 'uan', 'Uno'],
+        ['Two', 'tu', 'Dos'],
+        ['Three', 'zrí', 'Tres'],
+        ['Four', 'for', 'Cuatro'],
+        ['Five', 'fáiv', 'Cinco'],
+        ['Six', 'siks', 'Seis'],
+        ['Seven', 'séven', 'Siete'],
+        ['Eight', 'éit', 'Ocho'],
+        ['Nine', 'náin', 'Nueve'],
+        ['Ten', 'ten', 'Diez'],
+        ['Twenty', 'tuénti', 'Veinte'],
+        ['One hundred', 'uan jóndred', 'Cien'],
+        ['What time is it?', 'juát táim is it', '¿Qué hora es?'],
+        ["It's three o'clock.", 'its zrí oclók', 'Son las tres en punto.'],
+        ["It's half past five.", 'its jaf past fáiv', 'Son las cinco y media.'],
+        ["It's a quarter past two.", 'its a cuórter past tu', 'Son las dos y cuarto.'],
+        ["It's a quarter to eight.", 'its a cuórter tu éit', 'Son las ocho menos cuarto.']
+      ],
+      tips: [
+        '<b>El sonido TH.</b> En <i>three</i> la lengua se asoma entre los dientes y se sopla suave: suena entre “z” y “f”. Ensáyalo despacio.',
+        '<b>Thirteen y thirty se parecen.</b> En <i>thirTEEN</i> (zertín) suena fuerte el final; en <i>THIRty</i> (zérti) suena fuerte el principio.',
+        '<b>La hora:</b> <i>o’clock</i> es en punto, <i>half past</i> es y media, <i>a quarter past</i> es y cuarto y <i>a quarter to</i> es menos cuarto.'
+      ],
+      dialogs: [
+        { title: 'Preguntando la hora', lines: [
+          ['What time is it?', '¿Qué hora es?'],
+          ["It's a quarter to eight.", 'Son las ocho menos cuarto.']
+        ] }
+      ]
+    },
+    {
+      title: 'Verbo to be (ser y estar)',
+      intro: 'En inglés un solo verbo hace de “ser” y de “estar”.',
+      items: [
+        ['I am', 'ai am', 'Yo soy / yo estoy'],
+        ['You are', 'iu ar', 'Tú eres / tú estás'],
+        ['He is', 'ji is', 'Él es / él está'],
+        ['She is', 'shi is', 'Ella es / ella está'],
+        ['It is', 'it is', 'Es / está (cosas y animales)'],
+        ['We are', 'ui ar', 'Nosotros somos / estamos'],
+        ['They are', 'déi ar', 'Ellos son / están'],
+        ["I'm fine.", 'aim fáin', 'Estoy bien.'],
+        ['How are you?', 'jáu ar iu', '¿Cómo estás?'],
+        ['Where are you from?', 'juér ar iu from', '¿De dónde eres?'],
+        ["I'm from Spain.", 'aim from spéin', 'Soy de España.'],
+        ['She is my friend.', 'shi is mái frend', 'Ella es mi amiga.'],
+        ["I'm not tired.", 'aim not táierd', 'No estoy cansado.'],
+        ['They are at home.', 'déi ar at jóum', 'Ellos están en casa.']
+      ],
+      tips: [
+        '<b>Un verbo para dos.</b> I am, you are, he/she/it is, we/they are. Según el contexto significa “ser” o “estar”.',
+        '<b>El pronombre es obligatorio.</b> En español dices “estoy bien”; en inglés siempre <i>I’m fine</i>.',
+        '<b>Contracciones.</b> Al hablar se acorta: I am → I’m, you are → you’re, he is → he’s.',
+        '<b>Para negar</b> se añade <i>not</i> detrás: I am not tired.',
+        '<b>SH.</b> En <i>she</i> suena como cuando pides silencio: “shhh”.'
+      ],
+      dialogs: [
+        { title: 'Un saludo con pregunta', lines: [
+          ['Hello! How are you?', '¡Hola! ¿Cómo estás?'],
+          ["I'm fine. And you?", 'Estoy bien. ¿Y tú?']
+        ] },
+        { title: 'Conociendo a alguien', lines: [
+          ['Where are you from?', '¿De dónde eres?'],
+          ["I'm from Spain.", 'Soy de España.']
+        ] }
+      ]
+    },
+    {
+      title: 'Frases útiles del día a día',
+      intro: 'Las frases de cortesía y de supervivencia que más vas a usar.',
+      items: [
+        ['Please', 'plíis', 'Por favor'],
+        ['Thank you', 'zank iu', 'Gracias'],
+        ["You're welcome.", 'iur uélcom', 'De nada.'],
+        ['Excuse me', 'ekskiús mi', 'Perdone / disculpe'],
+        ["I'm sorry.", 'aim sóri', 'Lo siento.'],
+        ["I don't understand.", 'ai dóunt anderstánd', 'No entiendo.'],
+        ['Can you repeat, please?', 'kan iu ripít plíis', '¿Puede repetir, por favor?'],
+        ['Speak slowly, please.', 'spík slóuli plíis', 'Hable despacio, por favor.'],
+        ['Do you speak Spanish?', 'du iu spík spánish', '¿Habla español?'],
+        ['I speak a little English.', 'ai spík a lítl ínglish', 'Hablo un poco de inglés.'],
+        ["I don't know.", 'ai dóunt nóu', 'No lo sé.'],
+        ['Help!', 'jelp', '¡Ayuda!']
+      ],
+      tips: [
+        '<b>Thank you</b> se oye en todas partes. Entre amigos se dice también <i>thanks</i>.',
+        '<b>Excuse me</b> sirve para llamar la atención o para pasar entre gente. <b>I’m sorry</b> es para pedir perdón o lamentar algo.',
+        '<b>Tus dos mejores aliadas:</b> “Can you repeat, please?” y “Speak slowly, please.”'
+      ],
+      dialogs: [
+        { title: 'Pidiendo que repitan', lines: [
+          ['Excuse me, can you repeat, please?', 'Perdone, ¿puede repetir, por favor?'],
+          ['Yes, of course.', 'Sí, claro.'],
+          ['Thank you!', '¡Gracias!'],
+          ["You're welcome.", 'De nada.']
+        ] }
+      ]
+    },
+    {
+      title: 'Verbos básicos y frases sencillas',
+      intro: 'Los verbos de cada día para hablar de ti y de lo que haces.',
+      items: [
+        ['I have a camera.', 'ai jav a kámera', 'Tengo una cámara.'],
+        ['I want a coffee.', 'ai uónt a cófi', 'Quiero un café.'],
+        ['I like photography.', 'ai láik fotógrafi', 'Me gusta la fotografía.'],
+        ['I need help.', 'ai níid jelp', 'Necesito ayuda.'],
+        ['I live in Spain.', 'ai liv in spéin', 'Vivo en España.'],
+        ['I eat fish.', 'ai ít fish', 'Como pescado.'],
+        ['I drink water.', 'ai drink uóter', 'Bebo agua.'],
+        ['I go to the beach.', 'ai góu tu de bích', 'Voy a la playa.'],
+        ['She likes tea.', 'shi láiks tí', 'A ella le gusta el té.'],
+        ['He wants water.', 'ji uónts uóter', 'Él quiere agua.'],
+        ['We go home.', 'ui góu jóum', 'Vamos a casa.'],
+        ['Do you like coffee?', 'du iu láik cófi', '¿Te gusta el café?']
+      ],
+      tips: [
+        '<b>He, she, it llevan -s.</b> I want → he wants; I like → she likes.',
+        '<b>Dos casos especiales:</b> have → he has, go → she goes.',
+        '<b>Preguntar</b> con <i>do</i> al principio: Do you like coffee?'
+      ],
+      dialogs: [
+        { title: 'En casa', lines: [
+          ['Do you like coffee?', '¿Te gusta el café?'],
+          ['Yes, I like coffee.', 'Sí, me gusta el café.'],
+          ['I want a coffee.', 'Quiero un café.']
+        ] }
+      ]
+    },
+    {
+      title: 'Preguntar y pedir',
+      intro: 'Tiendas, restaurantes y direcciones: cómo pedir con educación.',
+      items: [
+        ['How much is it?', 'jáu moch is it', '¿Cuánto cuesta?'],
+        ['Where is the bathroom?', 'juér is de báthrum', '¿Dónde está el baño?'],
+        ['I would like a coffee, please.', 'ai uud láik a cófi plíis', 'Quisiera un café, por favor.'],
+        ['The menu, please.', 'de ménu plíis', 'La carta, por favor.'],
+        ['The bill, please.', 'de bil plíis', 'La cuenta, por favor.'],
+        ['A table for two, please.', 'a téibol for tu plíis', 'Una mesa para dos, por favor.'],
+        ['Where is the station?', 'juér is de stéishon', '¿Dónde está la estación?'],
+        ['Turn left.', 'tern left', 'Gire a la izquierda.'],
+        ['Turn right.', 'tern ráit', 'Gire a la derecha.'],
+        ['Go straight.', 'góu stréit', 'Siga recto.'],
+        ['Is it far?', 'is it far', '¿Está lejos?'],
+        ['Can I pay by card?', 'kan ai péi bai card', '¿Puedo pagar con tarjeta?']
+      ],
+      tips: [
+        '<b>Would like</b> es más educado que <i>want</i>: “I would like…” equivale a “quisiera…”.',
+        '<b>Please</b> al final suaviza cualquier petición.',
+        '<b>The</b> se pronuncia “de” con la lengua entre los dientes, muy suave.',
+        '<b>Direcciones:</b> left es izquierda, right es derecha y straight es recto.'
+      ],
+      dialogs: [
+        { title: 'En la cafetería', lines: [
+          ['Good afternoon. What would you like?', 'Buenas tardes. ¿Qué desea?'],
+          ['I would like a coffee, please.', 'Quisiera un café, por favor.'],
+          ['Here you are.', 'Aquí tiene.'],
+          ['How much is it?', '¿Cuánto cuesta?']
+        ] },
+        { title: 'Preguntando el camino', lines: [
+          ['Excuse me, where is the station?', 'Perdone, ¿dónde está la estación?'],
+          ['Go straight and turn left.', 'Siga recto y gire a la izquierda.'],
+          ['Is it far?', '¿Está lejos?'],
+          ["No, it's five minutes.", 'No, está a cinco minutos.']
+        ] }
+      ]
+    },
+    {
+      title: 'Pasado y futuro',
+      intro: 'Contar lo que hiciste ayer y lo que harás mañana.',
+      items: [
+        ['Yesterday', 'iésterdei', 'Ayer'],
+        ['Today', 'tudéi', 'Hoy'],
+        ['Tomorrow', 'tumórou', 'Mañana'],
+        ['Last week', 'last uík', 'La semana pasada'],
+        ['Next week', 'nekst uík', 'La semana próxima'],
+        ['I was tired.', 'ai uos táierd', 'Estaba cansado.'],
+        ['I went to the beach.', 'ai uent tu de bích', 'Fui a la playa.'],
+        ['I ate fish.', 'ai éit fish', 'Comí pescado.'],
+        ['I took a photo.', 'ai tuk a fóutou', 'Hice una foto.'],
+        ['I worked yesterday.', 'ai uorkt iésterdei', 'Ayer trabajé.'],
+        ['I will go tomorrow.', 'ai uil góu tumórou', 'Iré mañana.'],
+        ["I'm going to travel.", 'aim góuing tu trável', 'Voy a viajar.'],
+        ['We will eat at home.', 'ui uil it at jóum', 'Comeremos en casa.']
+      ],
+      tips: [
+        '<b>Pasado regular:</b> se añade <i>-ed</i> al verbo: work → worked.',
+        '<b>Pasado irregular:</b> hay que aprenderlos. go → went, eat → ate, take → took, am/is → was.',
+        '<b>Futuro:</b> <i>will</i> + verbo (I will go) o <i>going to</i> + verbo (I’m going to travel).'
+      ],
+      dialogs: [
+        { title: 'Hablando de ayer', lines: [
+          ['What did you do yesterday?', '¿Qué hiciste ayer?'],
+          ['I went to the beach. I took a photo.', 'Fui a la playa. Hice una foto.'],
+          ['Nice!', '¡Qué bien!']
+        ] }
+      ]
+    },
+    {
+      title: 'Conversaciones completas',
+      intro: 'Todo junto: tres conversaciones reales de principio a fin.',
+      items: [
+        ['Good afternoon. What would you like?', 'gud afternún. juát uud iu láik', 'Buenas tardes. ¿Qué desea?'],
+        ['A coffee with milk, please.', 'a cófi uíz milk plíis', 'Un café con leche, por favor.'],
+        ['Here you are.', 'jíer iu ar', 'Aquí tiene.'],
+        ["That's three euros.", 'dats zrí iúrous', 'Son tres euros.'],
+        ['Excuse me, where is the station?', 'ekskiús mi juér is de stéishon', 'Perdone, ¿dónde está la estación?'],
+        ['Go straight and turn left.', 'góu stréit and tern left', 'Siga recto y gire a la izquierda.'],
+        ["It's five minutes.", 'its fáiv mínits', 'Está a cinco minutos.'],
+        ['Hello! How are you?', 'jeló jáu ar iu', '¡Hola! ¿Cómo estás?'],
+        ["I'm fine, thank you. And you?", 'aim fáin zank iu. and iu', 'Estoy bien, gracias. ¿Y tú?'],
+        ['Do you speak English?', 'du iu spík ínglish', '¿Habla inglés?'],
+        ["A little. I'm learning.", 'a lítl. aim lérning', 'Un poco. Estoy aprendiendo.'],
+        ['Have a nice day!', 'jav a náis dei', '¡Que tenga un buen día!'],
+        ['See you tomorrow!', 'si iu tumórou', '¡Hasta mañana!']
+      ],
+      tips: [
+        '<b>Ya puedes mantener una conversación.</b> Estas frases mezclan todo lo aprendido en las lecciones anteriores.',
+        '<b>Practica en voz alta.</b> Escucha cada frase con 🔊 y repítela hasta que te salga sin mirar.'
+      ],
+      dialogs: [
+        { title: 'En la cafetería', lines: [
+          ['Good afternoon. What would you like?', 'Buenas tardes. ¿Qué desea?'],
+          ['A coffee with milk, please.', 'Un café con leche, por favor.'],
+          ['Here you are.', 'Aquí tiene.'],
+          ["That's three euros.", 'Son tres euros.'],
+          ['Thank you. Have a nice day!', 'Gracias. ¡Que tenga un buen día!']
+        ] },
+        { title: 'Preguntando el camino', lines: [
+          ['Excuse me, where is the station?', 'Perdone, ¿dónde está la estación?'],
+          ['Go straight and turn left.', 'Siga recto y gire a la izquierda.'],
+          ['Is it far?', '¿Está lejos?'],
+          ["No, it's five minutes.", 'No, está a cinco minutos.']
+        ] },
+        { title: 'Conociendo a alguien', lines: [
+          ['Hello! How are you?', '¡Hola! ¿Cómo estás?'],
+          ["I'm fine, thank you. And you?", 'Estoy bien, gracias. ¿Y tú?'],
+          ['Do you speak English?', '¿Habla inglés?'],
+          ["A little. I'm learning.", 'Un poco. Estoy aprendiendo.'],
+          ['See you tomorrow!', '¡Hasta mañana!']
+        ] }
+      ]
+    }
+  ];
+
+  var PASS = 0.8;
+  var NQ = 10;
+  var KEY = 'mi-ingles-v2';
+
+  /* ---------- Utilidades ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+  function pick(arr, n, exclude) {
+    return shuffle(arr.filter(function (x) { return x !== exclude; })).slice(0, n);
+  }
+  var CONTR = [
+    [/\bi'm\b/g, 'i am'],
+    [/\b(he|she|it|that|what|there|here|who)'s\b/g, '$1 is'],
+    [/\b(you|we|they)'re\b/g, '$1 are'],
+    [/\bdon't\b/g, 'do not'],
+    [/\bi'll\b/g, 'i will']
+  ];
+  function norm(s) {
+    s = String(s).toLowerCase().replace(/[’‘]/g, "'");
+    CONTR.forEach(function (c) { s = s.replace(c[0], c[1]); });
+    return s.replace(/[.,!?¡¿;:']/g, '').replace(/\s+/g, ' ').trim();
+  }
+  function words(s) { return s.replace(/[.,!?]/g, '').split(' ').filter(Boolean); }
+  function items(L) { return L.items.map(function (a) { return { en: a[0], pron: a[1], es: a[2] }; }); }
+
+  /* ---------- Progreso (se guarda en el móvil) ---------- */
+  var state = { cur: 0, best: {}, passed: {}, known: {} };
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved) {
+      state.cur = saved.cur || 0;
+      state.best = saved.best || {};
+      state.passed = saved.passed || {};
+      state.known = saved.known || {};
+    } else {
+      var old = JSON.parse(localStorage.getItem('mi-ingles-v1') || 'null');
+      if (old) {
+        if (old.passed) { state.passed[0] = true; state.best[0] = old.best || 0; }
+        state.known = old.known || {};
+      }
+    }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function unlocked(i) { return i === 0 || !!state.passed[i - 1]; }
+  if (!unlocked(state.cur)) state.cur = 0;
+  function L() { return LESSONS[state.cur]; }
+
+  /* ---------- Voz en inglés ---------- */
+  var voice = null;
+  function loadVoice() {
+    if (!('speechSynthesis' in window)) return;
+    var vs = speechSynthesis.getVoices();
+    voice = vs.filter(function (v) { return /^en[-_](US|GB)/i.test(v.lang); })[0] ||
+            vs.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+  }
+  if ('speechSynthesis' in window) { loadVoice(); speechSynthesis.onvoiceschanged = loadVoice; }
+  function speak(text, slow) {
+    if (!('speechSynthesis' in window)) { alert('Este móvil no tiene voz en inglés disponible.'); return; }
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = voice ? voice.lang : 'en-US';
+    if (voice) u.voice = voice;
+    u.rate = slow ? 0.6 : 0.85;
+    speechSynthesis.speak(u);
+  }
+
+  /* ---------- Navegación ---------- */
+  var tabs = ['aprender', 'tarjetas', 'practica', 'plan'];
+  var quiz = null, cardIdx = 0, flipped = false;
+
+  function show(tab) {
+    tabs.forEach(function (t) { $('v-' + t).hidden = (t !== tab); });
+    document.querySelectorAll('nav button').forEach(function (b) {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (tab === 'aprender') renderLesson();
+    if (tab === 'tarjetas') renderCards();
+    if (tab === 'practica') renderPracticeHome();
+    if (tab === 'plan') renderPlan();
+    window.scrollTo(0, 0);
+  }
+  function setLesson(i) {
+    state.cur = i; quiz = null; cardIdx = 0; flipped = false; save(); updateChip();
+  }
+  document.querySelector('nav').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (b) show(b.dataset.tab);
+  });
+
+  function updateChip() {
+    $('chip').textContent = 'Lección ' + (state.cur + 1) + (state.passed[state.cur] ? ' ✓' : '');
+  }
+
+  /* ---------- Lección ---------- */
+  function renderLesson() {
+    var lesson = L(), its = items(lesson), h = '';
+    h += '<h2>Lección ' + (state.cur + 1) + ': ' + esc(lesson.title) + '</h2>';
+    h += '<p class="muted">' + esc(lesson.intro) + ' Toca una frase para oírla; el botón 🐢 la dice más despacio.</p>';
+    var f = its[0];
+    h += '<button class="hero' + (f.en.length > 16 ? ' long' : '') + '" data-say="' + esc(f.en) + '">' +
+         '<span class="en">' + esc(f.en) + '</span><span class="pron">' + esc(f.pron) + '</span>' +
+         '<span class="es">' + esc(f.es) + '</span><span class="hint">Toca para escuchar</span></button>';
+    its.slice(1).forEach(function (p) {
+      h += '<div class="row"><div class="txt"><div class="en">' + esc(p.en) + '</div>' +
+           '<div class="pron">' + esc(p.pron) + '</div><div class="es">' + esc(p.es) + '</div></div>' +
+           '<button class="icon-btn" data-slow="' + esc(p.en) + '" aria-label="Escuchar despacio">🐢</button>' +
+           '<button class="icon-btn" data-say="' + esc(p.en) + '" aria-label="Escuchar">🔊</button></div>';
+    });
+    lesson.tips.forEach(function (t) { h += '<div class="tip">' + t + '</div>'; });
+
+    h += '<h3>Conversaciones de ejemplo</h3>';
+    lesson.dialogs.forEach(function (d) {
+      h += '<div class="dialog"><h4>' + esc(d.title) + '</h4>';
+      d.lines.forEach(function (l, k) {
+        h += '<div class="dline"><span class="who' + (k % 2 ? ' b' : '') + '">' + (k % 2 ? 'B' : 'A') + '</span>' +
+             '<div class="txt"><div class="en">' + esc(l[0]) + '</div><div class="es">' + esc(l[1]) + '</div></div>' +
+             '<button class="icon-btn" data-say="' + esc(l[0]) + '" aria-label="Escuchar">🔊</button></div>';
+      });
+      var all = d.lines.map(function (l) { return l[0]; }).join(' ... ');
+      h += '<button class="btn ghost" data-say="' + esc(all) + '">🔊 Escuchar toda la conversación</button></div>';
+    });
+    h += '<button class="btn" id="go-practica">Practicar lo aprendido</button>';
+    $('v-aprender').innerHTML = h;
+  }
+
+  /* ---------- Tarjetas ---------- */
+  function renderCards() {
+    var its = items(L());
+    if (cardIdx >= its.length) cardIdx = 0;
+    var p = its[cardIdx];
+    var knownCount = its.filter(function (x) { return state.known[x.en]; }).length;
+    var h = '<h2>Tarjetas · Lección ' + (state.cur + 1) + '</h2>';
+    h += '<p class="counter">' + (cardIdx + 1) + ' de ' + its.length + ' · las sé: ' + knownCount + '</p>';
+    h += '<button class="card" id="card" aria-live="polite">';
+    if (!flipped) {
+      h += '<span class="big' + (p.en.length > 20 ? ' long' : '') + '">' + esc(p.en) + '</span><span class="small">Toca para ver el significado</span>';
+    } else {
+      h += '<span class="big' + (p.es.length > 20 ? ' long' : '') + '">' + esc(p.es) + '</span><span class="pron">' + esc(p.pron) + '</span>' +
+           '<span class="small">' + esc(p.en) + '</span>';
+    }
+    h += '</button>';
+    h += '<div class="pair"><button class="btn ghost" data-say="' + esc(p.en) + '">🔊 Oír</button>' +
+         '<button class="btn ghost" data-slow="' + esc(p.en) + '">🐢 Despacio</button></div>';
+    h += '<div class="pair"><button class="btn ghost" id="c-prev">← Anterior</button>' +
+         '<button class="btn ghost" id="c-next">Siguiente →</button></div>';
+    h += '<button class="btn" id="c-know">' + (state.known[p.en] ? '✓ Ya la sé (toca para quitar)' : 'Ya me la sé') + '</button>';
+    $('v-tarjetas').innerHTML = h;
+  }
+
+  /* ---------- Práctica ---------- */
+  function buildQuiz(lesson) {
+    var its = items(lesson);
+    var ens = its.map(function (p) { return p.en; });
+    var ess = uniq(its.map(function (p) { return p.es; }));
+    var used = {};
+    function choose(filter) {
+      var c = shuffle(its.filter(filter));
+      var fresh = c.filter(function (x) { return !used[x.en]; });
+      var p = (fresh.length ? fresh : c)[0];
+      if (p) used[p.en] = 1;
+      return p;
+    }
+    function any() { return true; }
+    function short(p) { return words(p.en).length <= 4; }
+    function mid(p) { var n = words(p.en).length; return n >= 3 && n <= 7; }
+
+    function qChooseEs(p) {
+      return { type: 'choose', prompt: '¿Qué significa “' + p.en + '”?', say: null,
+               options: shuffle([p.es].concat(pick(ess, 3, p.es))), answer: p.es, show: p.en + ' = ' + p.es };
+    }
+    function qChooseEn(p) {
+      return { type: 'choose', prompt: '¿Cómo dices “' + p.es.replace(/\.$/, '') + '” en inglés?', say: null,
+               options: shuffle([p.en].concat(pick(ens, 3, p.en))), answer: p.en, show: p.en };
+    }
+    function qListen(p) {
+      return { type: 'choose', prompt: 'Escucha y elige qué significa.', say: p.en,
+               options: shuffle([p.es].concat(pick(ess, 3, p.es))), answer: p.es, show: p.en + ' = ' + p.es };
+    }
+    function qType(p) {
+      return { type: 'type', prompt: 'Escribe en inglés: “' + p.es.replace(/\.$/, '') + '”', answer: p.en, show: p.en };
+    }
+    function qOrder(p) {
+      var w = words(p.en);
+      return { type: 'order', prompt: 'Ordena la frase: “' + p.es.replace(/\.$/, '') + '”', words: shuffle(w), answer: w.join(' '), show: p.en };
+    }
+
+    var seq = ['ce', 'li', 'ee', 'ty', 'or', 'ee', 'li', 'ty', 'or', 'ce'];
+    var qs = seq.slice(0, NQ).map(function (k) {
+      var p;
+      if (k === 'ty') { p = choose(short); return p ? qType(p) : qChooseEn(choose(any)); }
+      if (k === 'or') { p = choose(mid);   return p ? qOrder(p) : qChooseEn(choose(any)); }
+      if (k === 'ce') return qChooseEs(choose(any));
+      if (k === 'ee') return qChooseEn(choose(any));
+      return qListen(choose(any));
+    });
+    return { lesson: state.cur, qs: qs, i: 0, score: 0, answered: false, picked: [], chosen: null, typed: '', saved: false };
+  }
+
+  function renderPracticeHome() {
+    if (quiz && quiz.lesson !== state.cur) quiz = null;
+    if (quiz && quiz.i < quiz.qs.length) { renderQuestion(); return; }
+    if (quiz && quiz.i >= quiz.qs.length) { renderResult(); return; }
+    var h = '<h2>Práctica · Lección ' + (state.cur + 1) + '</h2>';
+    h += '<p>' + NQ + ' ejercicios cortos de esta lección. Para dominarla necesitas al menos un 80 % de aciertos.</p>';
+    var b = state.best[state.cur];
+    if (b) h += '<p class="muted">Tu mejor resultado: ' + b + ' de ' + NQ + (state.passed[state.cur] ? ' ✓ Lección dominada' : '') + '.</p>';
+    h += '<button class="btn" id="q-start">Empezar</button>';
+    $('v-practica').innerHTML = h;
+  }
+
+  function renderQuestion() {
+    var q = quiz.qs[quiz.i];
+    var pct = Math.round((quiz.i / quiz.qs.length) * 100);
+    var h = '<div class="counter">Ejercicio ' + (quiz.i + 1) + ' de ' + quiz.qs.length + '</div>';
+    h += '<div class="bar"><i style="width:' + pct + '%"></i></div>';
+    h += '<div class="q">' + esc(q.prompt) + '</div>';
+    if (q.say) h += '<div class="pair"><button class="btn ghost" data-say="' + esc(q.say) + '">🔊 Oír</button>' +
+                    '<button class="btn ghost" data-slow="' + esc(q.say) + '">🐢 Despacio</button></div>';
+
+    if (q.type === 'choose') {
+      q.options.forEach(function (o, k) {
+        var cls = 'opt';
+        if (quiz.answered) { if (o === q.answer) cls += ' ok'; else if (quiz.chosen === o) cls += ' bad'; }
+        h += '<button class="' + cls + '" data-opt="' + k + '"' + (quiz.answered ? ' disabled' : '') + '>' + esc(o) + '</button>';
+      });
+    } else if (q.type === 'type') {
+      h += '<input type="text" id="typed" autocomplete="off" autocapitalize="sentences" spellcheck="false" ' +
+           (quiz.answered ? 'disabled value="' + esc(quiz.typed || '') + '"' : '') + ' placeholder="Escribe aquí">';
+      if (!quiz.answered) h += '<button class="btn" id="q-check">Comprobar</button>';
+    } else if (q.type === 'order') {
+      h += '<div class="answer-area">';
+      quiz.picked.forEach(function (idx, n) {
+        h += '<button class="tile" data-un="' + n + '"' + (quiz.answered ? ' disabled' : '') + '>' + esc(q.words[idx]) + '</button>';
+      });
+      h += '</div><div class="tiles">';
+      q.words.forEach(function (w, idx) {
+        h += '<button class="tile' + (quiz.picked.indexOf(idx) > -1 ? ' used' : '') + '" data-tile="' + idx + '">' + esc(w) + '</button>';
+      });
+      h += '</div>';
+      if (!quiz.answered) h += '<button class="btn" id="q-check"' + (quiz.picked.length ? '' : ' disabled') + '>Comprobar</button>';
+    }
+
+    if (quiz.answered) {
+      h += '<div class="feedback ' + (quiz.correct ? 'ok' : 'bad') + '">' +
+           (quiz.correct ? '<b>¡Correcto!</b>' : '<b>Casi.</b> Se dice: ' + esc(q.show)) + '</div>';
+      var sayText = q.type === 'choose' && q.say ? q.say : (q.type === 'choose' ? (q.show.split(' = ')[0]) : q.show);
+      h += '<div class="pair"><button class="btn ghost" data-say="' + esc(sayText) + '">🔊 Oír</button>' +
+           '<button class="btn" id="q-next">' + (quiz.i === quiz.qs.length - 1 ? 'Ver resultado' : 'Siguiente') + '</button></div>';
+    }
+    $('v-practica').innerHTML = h;
+    if (q.type === 'type' && !quiz.answered) { var t = $('typed'); if (t) t.focus(); }
+  }
+
+  function finishAnswer(ok) {
+    quiz.answered = true; quiz.correct = ok;
+    if (ok) quiz.score++;
+    renderQuestion();
+  }
+
+  function renderResult() {
+    var total = quiz.qs.length, ok = quiz.score / total >= PASS;
+    if (!quiz.saved) {
+      quiz.saved = true;
+      if (quiz.score > (state.best[quiz.lesson] || 0)) state.best[quiz.lesson] = quiz.score;
+      if (ok) state.passed[quiz.lesson] = true;
+      save(); updateChip();
+    }
+    var last = quiz.lesson === LESSONS.length - 1;
+    var h = '<h2>Resultado</h2><div class="score">' + quiz.score + ' / ' + total + '</div>';
+    if (ok && last) {
+      h += '<div class="feedback ok"><b>¡Has completado el curso!</b> Ya puedes saludar, pedir, preguntar y mantener una conversación sencilla en inglés. Enhorabuena.</div>';
+    } else if (ok) {
+      h += '<div class="feedback ok"><b>¡Lección ' + (quiz.lesson + 1) + ' dominada!</b> Se ha abierto la lección ' + (quiz.lesson + 2) + ': ' + esc(LESSONS[quiz.lesson + 1].title) + '.</div>';
+      h += '<button class="btn" id="next-lesson">Ir a la lección ' + (quiz.lesson + 2) + '</button>';
+    } else {
+      h += '<div class="feedback bad"><b>Todavía no.</b> Necesitas al menos un 80 %. Repasa la lección y las tarjetas y vuelve a intentarlo, sin prisa.</div>';
+    }
+    h += '<button class="btn ' + (ok ? 'ghost' : '') + '" id="q-again">Repetir práctica</button>';
+    h += '<button class="btn ghost" id="to-cards">Repasar tarjetas</button>';
+    $('v-practica').innerHTML = h;
+  }
+
+  /* ---------- Plan ---------- */
+  function renderPlan() {
+    var h = '<h2>Plan de aprendizaje</h2>';
+    h += '<p class="muted">Una lección cada vez. La siguiente se abre al dominar la actual (80 % en la práctica).</p>';
+    LESSONS.forEach(function (lesson, i) {
+      var open = unlocked(i), done = !!state.passed[i];
+      var cls = 'lesson-item' + (open ? '' : ' locked') + (done ? ' done' : '') + (i === state.cur ? ' current' : '');
+      var st = done ? '✓ Dominada (' + state.best[i] + ' de ' + NQ + ')' : (open ? (i === state.cur ? 'En curso' : 'Disponible') : 'Se abre al dominar la anterior');
+      h += '<button class="' + cls + '" data-lesson="' + i + '"' + (open ? '' : ' disabled') + '>' +
+           '<span class="n">' + (done ? '✓' : (open ? (i + 1) : '🔒')) + '</span>' +
+           '<span><span style="display:block"><b>' + (i + 1) + '. ' + esc(lesson.title) + '</b></span><span class="state">' + st + '</span></span></button>';
+    });
+    h += '<button class="btn ghost" id="reset" style="margin-top:28px">Borrar mi progreso</button>';
+    $('v-plan').innerHTML = h;
+  }
+
+  /* ---------- Eventos ---------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    var say = t.closest('[data-say]'); if (say) { speak(say.dataset.say, false); return; }
+    var slow = t.closest('[data-slow]'); if (slow) { speak(slow.dataset.slow, true); return; }
+
+    var les = t.closest('[data-lesson]');
+    if (les) { setLesson(+les.dataset.lesson); show('aprender'); return; }
+    if (t.closest('#reset')) {
+      if (confirm('¿Seguro que quieres borrar todo tu progreso?')) {
+        state = { cur: 0, best: {}, passed: {}, known: {} }; quiz = null; cardIdx = 0; flipped = false;
+        save(); updateChip(); renderPlan();
+      }
+      return;
+    }
+
+    if (t.closest('#go-practica')) { show('practica'); quiz = buildQuiz(L()); renderQuestion(); return; }
+    if (t.closest('#q-start')) { quiz = buildQuiz(L()); renderQuestion(); return; }
+    if (t.closest('#q-again')) { quiz = buildQuiz(L()); renderQuestion(); return; }
+    if (t.closest('#next-lesson')) { setLesson(state.cur + 1); show('aprender'); return; }
+    if (t.closest('#to-cards')) { show('tarjetas'); return; }
+
+    if (t.closest('#card')) { flipped = !flipped; renderCards(); return; }
+    var n = L().items.length;
+    if (t.closest('#c-next')) { cardIdx = (cardIdx + 1) % n; flipped = false; renderCards(); return; }
+    if (t.closest('#c-prev')) { cardIdx = (cardIdx - 1 + n) % n; flipped = false; renderCards(); return; }
+    if (t.closest('#c-know')) {
+      var en = L().items[cardIdx][0];
+      if (state.known[en]) delete state.known[en]; else state.known[en] = true;
+      save(); renderCards(); return;
+    }
+
+    if (!quiz || quiz.i >= quiz.qs.length) return;
+    var q = quiz.qs[quiz.i];
+
+    var opt = t.closest('[data-opt]');
+    if (opt && !quiz.answered) {
+      var val = q.options[+opt.dataset.opt];
+      quiz.chosen = val; finishAnswer(val === q.answer); return;
+    }
+    var tile = t.closest('[data-tile]');
+    if (tile && !quiz.answered) {
+      var idx = +tile.dataset.tile;
+      if (quiz.picked.indexOf(idx) === -1) quiz.picked.push(idx);
+      renderQuestion(); return;
+    }
+    var un = t.closest('[data-un]');
+    if (un && !quiz.answered) { quiz.picked.splice(+un.dataset.un, 1); renderQuestion(); return; }
+
+    if (t.closest('#q-check') && !quiz.answered) {
+      if (q.type === 'type') {
+        quiz.typed = $('typed').value;
+        finishAnswer(norm(quiz.typed) === norm(q.answer));
+      } else if (q.type === 'order') {
+        var built = quiz.picked.map(function (i) { return q.words[i]; }).join(' ');
+        finishAnswer(norm(built) === norm(q.answer));
+      }
+      return;
+    }
+    if (t.closest('#q-next')) {
+      quiz.i++; quiz.answered = false; quiz.picked = []; quiz.chosen = null; quiz.typed = '';
+      if (quiz.i >= quiz.qs.length) renderResult(); else renderQuestion();
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'typed') {
+      var b = $('q-check'); if (b) b.click();
+    }
+  });
+
+  /* ---------- Inicio ---------- */
+  renderLesson();
+  updateChip();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+})();
+</script>
+</body>
+</html>
